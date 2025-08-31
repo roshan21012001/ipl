@@ -37,16 +37,29 @@ function getRandomAcceptLanguage() {
 }
 
 export async function createBrowser() {
+    const isProduction = process.env.NODE_ENV === 'production';
+    
     const browser = await puppeteer.launch({
-        headless: 'new',
+        headless: true,
         args: [
             '--no-sandbox',
+            '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--no-first-run',
+            '--no-zygote',
+            '--single-process', // For Render compatibility
             '--disable-gpu',
             '--disable-images',
             '--disable-web-security',
-            '--disable-blink-features=AutomationControlled'
-        ]
+            '--disable-blink-features=AutomationControlled',
+            '--disable-background-timer-throttling',
+            '--disable-backgrounding-occluded-windows',
+            '--disable-renderer-backgrounding',
+            '--memory-pressure-off',
+            isProduction ? '--disable-extensions' : ''
+        ].filter(Boolean),
+        executablePath: isProduction ? process.env.PUPPETEER_EXECUTABLE_PATH : undefined
     });
     
     return browser;
