@@ -127,4 +127,6 @@ app.listen(PORT, () => {
   console.log(`   - Matches: http://localhost:${PORT}/api/matches`);
   console.log(`   - Teams: http://localhost:${PORT}/api/teams`);
   console.log(`   - Health: http://localhost:${PORT}/health`);
+}).on('error', (err) => {
+  console.error('FATAL ERROR: Server failed to start:', err);
 });

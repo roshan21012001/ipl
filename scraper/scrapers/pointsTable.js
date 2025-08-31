@@ -52,15 +52,20 @@ function parseTeamRow(row, columnMap, rowIndex) {
 }
 
 export async function scrapePointsTable(year = 2025) {
+    console.log('DEBUG: Attempting to create browser...');
     const browser = await createBrowser();
+    console.log('DEBUG: Browser created.');
     
     try {
         const page = await createPage(browser);
         
         console.log(`📊 Loading points table for ${year}...`);
         await respectfulDelay(); // Add delay before request
+        console.log(`DEBUG: Navigating to URL: https://www.iplt20.com/points-table/men/${year}`);
         await page.goto(`https://www.iplt20.com/points-table/men/${year}`);
+        console.log('DEBUG: Page navigation initiated.');
         await waitForPageLoad(page);
+        console.log('DEBUG: Page loaded.');
         
         // Wait for table to load
         await page.waitForSelector('table', { timeout: 10000 });
@@ -115,7 +120,13 @@ export async function scrapePointsTable(year = 2025) {
             tableStructure: columnMap // For debugging
         };
         
+    } catch (error) {
+        console.error('ERROR: An error occurred during scraping:', error);
+        throw error; // Re-throw to ensure it's caught by the server.js handler
     } finally {
-        await browser.close();
+        if (browser) {
+            await browser.close();
+            console.log('DEBUG: Browser closed.');
+        }
     }
 }
