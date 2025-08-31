@@ -1,4 +1,5 @@
 import puppeteer from 'puppeteer';
+import chromium from '@sparticuz/chromium';
 
 const USER_AGENTS = [
     // Chrome on macOS
@@ -41,14 +42,14 @@ export async function createBrowser() {
     
     const browser = await puppeteer.launch({
         headless: true,
-        args: [
+        args: isProduction ? chromium.args : [
             '--no-sandbox',
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
             '--disable-accelerated-2d-canvas',
             '--no-first-run',
             '--no-zygote',
-            '--single-process', // For Render compatibility
+            // '--single-process', // Removed, handled by chromium.args
             '--disable-gpu',
             '--disable-images',
             '--disable-web-security',
@@ -59,7 +60,7 @@ export async function createBrowser() {
             '--memory-pressure-off',
             isProduction ? '--disable-extensions' : ''
         ].filter(Boolean),
-        executablePath: isProduction ? '/usr/bin/chromium-browser' : undefined
+        executablePath: isProduction ? await chromium.executablePath() : undefined
     });
     
     return browser;
