@@ -5,8 +5,26 @@ import TopNav from '@/components/TopNav';
 import { useYear } from '@/contexts/YearContext';
 import { getYearStyles } from '@/utils/gradients';
 
+interface NewsArticle {
+  id: number;
+  title: string;
+  summary?: string;
+  link?: string;
+  image?: string;
+  publishedDate?: string;
+  category?: string;
+  extracted?: string;
+}
+
+interface NewsData {
+  articles?: NewsArticle[];
+  totalArticles?: number;
+  lastUpdated?: string;
+  source?: string;
+}
+
 // Client-side data fetching for news
-async function getNews(limit: number = 20) {
+async function getNews(limit: number = 20): Promise<NewsData> {
   try {
     const response = await fetch(`/api/news?limit=${limit}`, {
       cache: 'no-store'
@@ -91,7 +109,7 @@ function getCategoryColor(category: string): string {
 }
 
 export default function NewsPage() {
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<NewsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const { selectedYear } = useYear();
@@ -113,13 +131,13 @@ export default function NewsPage() {
   const yearStyles = getYearStyles(selectedYear);
   
   // Filter articles by category
-  const filteredArticles = data?.articles?.filter((article: any) => 
+  const filteredArticles = data?.articles?.filter((article: NewsArticle) => 
     selectedCategory === 'All' || article.category === selectedCategory
   ) || [];
 
   // Get unique categories
-  const categories = data?.articles ? 
-    ['All', ...Array.from(new Set(data.articles.map((article: any) => article.category)))] : 
+  const categories: string[] = data?.articles ? 
+    ['All', ...(Array.from(new Set(data.articles.map((article: NewsArticle) => String(article.category || 'Unknown')))) as string[])] : 
     ['All'];
   
   return (
@@ -173,7 +191,7 @@ export default function NewsPage() {
               </div>
             ) : filteredArticles.length > 0 ? (
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {filteredArticles.map((article: any) => (
+                {filteredArticles.map((article: NewsArticle) => (
                   <div key={article.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
                     {article.image && (
                       <div className="aspect-video bg-gray-200">
@@ -191,7 +209,7 @@ export default function NewsPage() {
                     <div className="p-6">
                       {/* Category Badge */}
                       <div className="mb-3">
-                        <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(article.category)}`}>
+                        <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(article.category || 'General')}`}>
                           {article.category}
                         </span>
                       </div>
@@ -211,7 +229,7 @@ export default function NewsPage() {
                       {/* Footer */}
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-gray-500">
-                          {formatDate(article.publishedDate)}
+                          {formatDate(article.publishedDate || '')}
                         </span>
                         
                         {article.link && (
@@ -219,7 +237,7 @@ export default function NewsPage() {
                             href={article.link}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className={`text-xs font-medium ${yearStyles.primaryText} hover:underline`}
+                            className="text-xs font-medium text-blue-600 hover:underline"
                           >
                             Read more →
                           </a>

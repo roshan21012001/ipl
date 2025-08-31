@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+interface MatchData {
+  description?: string;
+  text?: string;
+  [key: string]: unknown;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -28,7 +34,7 @@ export async function GET(request: NextRequest) {
     const matches = matchesData.matches || [];
     
     // Helper functions to determine match status
-    const getMatchStatus = (match: any) => {
+    const getMatchStatus = (match: MatchData) => {
       const description = match.description || match.text || '';
       const isAbandoned = /Match Abandoned|abandoned|No Result|no result/i.test(description);
       const hasWonBy = /won by/i.test(description); // Case insensitive and include lowercase
@@ -40,9 +46,9 @@ export async function GET(request: NextRequest) {
       return 'upcoming';
     };
     
-    const completedMatches = matches.filter((match: any) => getMatchStatus(match) === 'completed');
-    const upcomingMatches = matches.filter((match: any) => getMatchStatus(match) === 'upcoming');
-    const abandonedMatches = matches.filter((match: any) => getMatchStatus(match) === 'abandoned');
+    const completedMatches = matches.filter((match: MatchData) => getMatchStatus(match) === 'completed');
+    const upcomingMatches = matches.filter((match: MatchData) => getMatchStatus(match) === 'upcoming');
+    const abandonedMatches = matches.filter((match: MatchData) => getMatchStatus(match) === 'abandoned');
     
     const scheduleData = {
       year: parseInt(year),

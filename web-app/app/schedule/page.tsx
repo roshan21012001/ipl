@@ -3,7 +3,23 @@
 import { useState, useEffect } from 'react';
 import TopNav from '@/components/TopNav';
 import { useYear } from '@/contexts/YearContext';
-import { getYearStyles, IPL_YEARS } from '@/utils/gradients';
+import { getYearStyles } from '@/utils/gradients';
+
+interface ScheduleMatch {
+  id?: number;
+  description?: string;
+  text?: string;
+  [key: string]: unknown;
+}
+
+interface ScheduleData {
+  matches?: ScheduleMatch[];
+  totalMatches?: number;
+  lastUpdated?: string;
+  upcomingMatches?: number;
+  completedMatches?: number;
+  abandonedMatches?: number;
+}
 
 // Universal IPL Match Data Parser (2008-2025)
 function parseMatchData(description: string) {
@@ -171,9 +187,9 @@ async function getSchedule(year: number) {
 }
 
 export default function Schedule() {
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<ScheduleData | null>(null);
   const [loading, setLoading] = useState(true);
-  const { selectedYear, setSelectedYear } = useYear();
+  const { selectedYear } = useYear();
 
   useEffect(() => {
     // Add a small delay to show tab switch first
@@ -269,7 +285,7 @@ export default function Schedule() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200">
-                        {data.matches.map((match: any, index: number) => {
+                        {data.matches.map((match: ScheduleMatch, index: number) => {
                           const parsedMatch = parseMatchData(match.description || match.text || '');
                           
                           return (

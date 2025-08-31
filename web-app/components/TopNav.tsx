@@ -40,7 +40,6 @@ const navigation: NavItem[] = [
   }
 ];
 
-const years = IPL_YEARS;
 
 export default function TopNav() {
   const [isOpen, setIsOpen] = useState(false);

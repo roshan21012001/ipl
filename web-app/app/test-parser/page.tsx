@@ -4,6 +4,14 @@ import { useState, useEffect } from 'react';
 import TopNav from '@/components/TopNav';
 import { IPL_YEARS } from '@/utils/gradients';
 
+interface TestResult {
+  year: number;
+  success: boolean;
+  raw: unknown;
+  parsed: unknown;
+  [key: string]: unknown;
+}
+
 // Copy the same parsing function
 function parseMatchData(description: string) {
   if (!description) return null;
@@ -117,7 +125,7 @@ function parseMatchData(description: string) {
 }
 
 export default function TestParser() {
-  const [testResults, setTestResults] = useState<any[]>([]);
+  const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [loading, setLoading] = useState(false);
   
   async function testAllYears() {
@@ -182,7 +190,7 @@ export default function TestParser() {
                 <div className="mb-3">
                   <strong>Raw Data:</strong>
                   <pre className="text-xs bg-gray-100 p-2 mt-1 rounded overflow-x-auto">
-                    {result.raw}
+                    {JSON.stringify(result.raw, null, 2)}
                   </pre>
                 </div>
                 

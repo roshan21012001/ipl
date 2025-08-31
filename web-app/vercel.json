@@ -1,0 +1,23 @@
+{
+  "framework": "nextjs",
+  "regions": ["sin1"],
+  "functions": {
+    "app/api/*/route.ts": {
+      "maxDuration": 30
+    }
+  },
+  "env": {
+    "SCRAPER_SERVICE_URL": "@scraper-service-url"
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "X-Powered-By",
+          "value": "IPL Dashboard"
+        }
+      ]
+    }
+  ]
+}

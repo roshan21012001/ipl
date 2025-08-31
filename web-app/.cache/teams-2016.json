@@ -10,7 +10,7 @@
         "championships": "2010 | 2011 | 2018 | 2021 | 2023",
         "totalTitles": 5,
         "isChampion": true,
-        "extracted": "2025-08-31T15:29:34.221Z"
+        "extracted": "2025-08-31T15:19:58.971Z"
       },
       {
         "id": 2,
@@ -21,7 +21,7 @@
         "championships": "",
         "totalTitles": 0,
         "isChampion": false,
-        "extracted": "2025-08-31T15:29:34.221Z"
+        "extracted": "2025-08-31T15:19:58.971Z"
       },
       {
         "id": 3,
@@ -32,7 +32,7 @@
         "championships": "2022",
         "totalTitles": 1,
         "isChampion": true,
-        "extracted": "2025-08-31T15:29:34.221Z"
+        "extracted": "2025-08-31T15:19:58.971Z"
       },
       {
         "id": 4,
@@ -43,7 +43,7 @@
         "championships": "2012 | 2014 | 2024",
         "totalTitles": 3,
         "isChampion": true,
-        "extracted": "2025-08-31T15:29:34.221Z"
+        "extracted": "2025-08-31T15:19:58.971Z"
       },
       {
         "id": 5,
@@ -54,7 +54,7 @@
         "championships": "",
         "totalTitles": 0,
         "isChampion": false,
-        "extracted": "2025-08-31T15:29:34.221Z"
+        "extracted": "2025-08-31T15:19:58.971Z"
       },
       {
         "id": 6,
@@ -65,7 +65,7 @@
         "championships": "2013 | 2015 | 2017 | 2019 | 2020",
         "totalTitles": 5,
         "isChampion": true,
-        "extracted": "2025-08-31T15:29:34.221Z"
+        "extracted": "2025-08-31T15:19:58.971Z"
       },
       {
         "id": 7,
@@ -76,7 +76,7 @@
         "championships": "",
         "totalTitles": 0,
         "isChampion": false,
-        "extracted": "2025-08-31T15:29:34.221Z"
+        "extracted": "2025-08-31T15:19:58.971Z"
       },
       {
         "id": 8,
@@ -87,7 +87,7 @@
         "championships": "2008",
         "totalTitles": 1,
         "isChampion": true,
-        "extracted": "2025-08-31T15:29:34.221Z"
+        "extracted": "2025-08-31T15:19:58.971Z"
       },
       {
         "id": 9,
@@ -98,7 +98,7 @@
         "championships": "2025",
         "totalTitles": 1,
         "isChampion": true,
-        "extracted": "2025-08-31T15:29:34.221Z"
+        "extracted": "2025-08-31T15:19:58.971Z"
       },
       {
         "id": 10,
@@ -109,16 +109,16 @@
         "championships": "2016",
         "totalTitles": 1,
         "isChampion": true,
-        "extracted": "2025-08-31T15:29:34.221Z"
+        "extracted": "2025-08-31T15:19:58.971Z"
       }
     ],
     "totalTeams": 10,
     "championTeams": 7,
-    "lastUpdated": "2025-08-31T15:29:34.221Z",
+    "lastUpdated": "2025-08-31T15:19:58.971Z",
     "source": "https://www.iplt20.com/teams",
     "scrapedOnly": true,
     "note": "Team information and championship data scraped from official IPL website using team-on-hover structure"
   },
-  "timestamp": 1756654174302,
+  "timestamp": 1756653599050,
   "ttl": 900000
 }

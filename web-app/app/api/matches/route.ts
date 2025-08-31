@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { exec } from 'child_process';
-import { promisify } from 'util';
 
-const execAsync = promisify(exec);
+const SCRAPER_SERVICE_URL = process.env.SCRAPER_SERVICE_URL || 'http://localhost:3001';
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,31 +15,29 @@ export async function GET(request: NextRequest) {
       console.log(`🏏 Loading matches for ${year}...`);
     }
     
-    // Execute the scraper as a subprocess with year parameter
-    const { stdout, stderr } = await execAsync(`cd ../scraper && npm run matches ${year}`, {
-      timeout: 30000 // 30 second timeout
+    // Call external scraper service
+    const scraperUrl = `${SCRAPER_SERVICE_URL}/api/matches?year=${year}${forceRefresh ? '&refresh=true' : ''}`;
+    const response = await fetch(scraperUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'User-Agent': 'IPL-Dashboard/1.0'
+      },
+      // Timeout after 25 seconds
+      signal: AbortSignal.timeout(25000)
     });
     
-    if (stderr && !stderr.includes('Warning')) {
-      throw new Error(`Scraper error: ${stderr}`);
+    if (!response.ok) {
+      throw new Error(`Scraper service error: ${response.status} ${response.statusText}`);
     }
     
-    // Extract JSON from the mixed console output  
-    // Look for the array that starts with [ and ends with ]
-    const jsonMatch = stdout.match(/(\[.*\])/);
-    if (!jsonMatch) {
-      throw new Error('No JSON data found in scraper output');
-    }
-    
-    // Parse the clean JSON string
-    const jsonString = jsonMatch[1];
-    const data = JSON.parse(jsonString);
+    const data = await response.json();
     
     const responseData = { 
       year: parseInt(year),
-      totalMatches: data.length,
-      matches: data,
-      lastUpdated: new Date().toISOString()
+      totalMatches: data.matches?.length || data.length || 0,
+      matches: data.matches || data,
+      lastUpdated: data.lastUpdated || new Date().toISOString()
     };
     
     const cacheHeaders: Record<string, string> = forceRefresh ? {
@@ -49,15 +45,17 @@ export async function GET(request: NextRequest) {
       'Cache-Control': 'public, s-maxage=60, max-age=10', // CDN 1min, browser 10sec
       'X-Cache-Status': 'FORCE-REFRESHED',
       'X-Refresh-Time': new Date().toISOString(),
-      'X-Matches-Count': data.length.toString()
+      'X-Matches-Count': responseData.totalMatches.toString(),
+      'X-Scraper-Service': 'external'
     } : {
       // Normal request: Standard CDN caching
       'Cache-Control': 'public, s-maxage=60, max-age=60', // CDN 1min, browser 1min
       'X-Cache-Status': 'FRESH',
-      'X-Matches-Count': data.length.toString()
+      'X-Matches-Count': responseData.totalMatches.toString(),
+      'X-Scraper-Service': 'external'
     };
     
-    console.log(`✅ ${forceRefresh ? 'Force refreshed' : 'Loaded'} ${data.length} matches`);
+    console.log(`✅ ${forceRefresh ? 'Force refreshed' : 'Loaded'} ${responseData.totalMatches} matches from external service`);
     
     // Return the data with appropriate cache headers
     return NextResponse.json(responseData, {
@@ -65,11 +63,22 @@ export async function GET(request: NextRequest) {
     });
     
   } catch (error) {
-    console.error('❌ API Error scraping matches:', error);
+    console.error('❌ External scraper service error:', error);
     
     return NextResponse.json(
-      { error: 'Failed to scrape matches', message: (error as Error).message },
-      { status: 500 }
+      { 
+        error: 'Failed to fetch matches data',
+        message: (error as Error).message,
+        service: 'external-scraper',
+        timestamp: new Date().toISOString()
+      },
+      { 
+        status: 503,
+        headers: {
+          'X-Service-Status': 'unavailable',
+          'Retry-After': '60'
+        }
+      }
     );
   }
 }
