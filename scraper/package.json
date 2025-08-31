@@ -7,6 +7,7 @@
     "start": "node server.js",
     "server": "node server.js",
     "build": "npx puppeteer browsers install chrome",
+    "postinstall": "npx puppeteer browsers install chrome",
     "dev": "node main.js",
     "points": "node main.js points",
     "matches": "node main.js matches",
