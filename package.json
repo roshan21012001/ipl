@@ -1,0 +1,31 @@
+{
+  "name": "ipl-data-monorepo",
+  "version": "1.0.0",
+  "description": "IPL Data Monorepo - Web Scraper, Next.js Backend, and React Frontend",
+  "private": true,
+  "workspaces": [
+    "scraper",
+    "web-app"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:scraper\" \"npm run dev:web\"",
+    "dev:scraper": "cd scraper && npm start",
+    "dev:web": "cd web-app && npm run dev",
+    "start:web": "cd web-app && npm start",
+    "build": "npm run build:scraper && npm run build:web",
+    "build:scraper": "cd scraper && echo 'Scraper built'",
+    "build:web": "cd web-app && npm run build",
+    "install:all": "npm install && cd scraper && npm install && cd ../web-app && npm install",
+    "clean": "rm -rf node_modules scraper/node_modules web-app/node_modules",
+    "scrape:points": "cd scraper && npm run points",
+    "scrape:matches": "cd scraper && npm run matches",
+    "scrape:teams": "cd scraper && npm run teams",
+    "scrape:all": "cd scraper && npm start"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": ["ipl", "cricket", "scraping", "nextjs", "react", "monorepo"],
+  "author": "Your Name",
+  "license": "MIT"
+}

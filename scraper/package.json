@@ -1,0 +1,16 @@
+{
+  "name": "web-scraper",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js",
+    "points": "node main.js points",
+    "matches": "node main.js matches",
+    "teams": "node main.js teams",
+    "legacy": "node scraper.js"
+  },
+  "dependencies": {
+    "puppeteer": "^24.0.0"
+  }
+}
