@@ -4,8 +4,9 @@
   "type": "module",
   "main": "main.js",
   "scripts": {
-    "start": "node main.js",
+    "start": "node server.js",
     "server": "node server.js",
+    "dev": "node main.js",
     "points": "node main.js points",
     "matches": "node main.js matches",
     "teams": "node main.js teams",

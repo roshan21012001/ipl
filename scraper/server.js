@@ -6,7 +6,7 @@ import { scrapeTeams } from './scrapers/teams.js';
 // import { scrapeNews } from './scrapers/news.js';
 
 const app = express();
-const PORT = 3002;
+const PORT = process.env.PORT || 3002;
 
 // Enable CORS for all routes
 app.use(cors());
