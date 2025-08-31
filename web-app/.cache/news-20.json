@@ -1,0 +1,51 @@
+{
+  "data": {
+    "articles": [
+      {
+        "id": 2,
+        "title": "ANNOUNCEMENTS",
+        "summary": "",
+        "link": "https://www.iplt20.com/news/announcements",
+        "image": "",
+        "publishedDate": "",
+        "category": "News",
+        "extracted": "2025-08-31T09:31:50.819Z"
+      },
+      {
+        "id": 3,
+        "title": "MATCH REPORTS",
+        "summary": "",
+        "link": "https://www.iplt20.com/news/match-reports",
+        "image": "",
+        "publishedDate": "",
+        "category": "News",
+        "extracted": "2025-08-31T09:31:50.819Z"
+      },
+      {
+        "id": 5,
+        "title": "ANNOUNCEMENTS",
+        "summary": "",
+        "link": "https://www.iplt20.com/news/announcements",
+        "image": "",
+        "publishedDate": "",
+        "category": "News",
+        "extracted": "2025-08-31T09:31:50.819Z"
+      },
+      {
+        "id": 6,
+        "title": "MATCH REPORTS",
+        "summary": "",
+        "link": "https://www.iplt20.com/news/match-reports",
+        "image": "",
+        "publishedDate": "",
+        "category": "News",
+        "extracted": "2025-08-31T09:31:50.819Z"
+      }
+    ],
+    "totalArticles": 4,
+    "lastUpdated": "2025-08-31T09:31:50.820Z",
+    "source": "iplt20.com/news"
+  },
+  "timestamp": 1756632710932,
+  "ttl": 600000
+}

@@ -1,0 +1,20 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Stadium bowl shape -->
+  <ellipse cx="12" cy="16" rx="10" ry="4" fill="currentColor" opacity="0.3"/>
+  
+  <!-- Stadium tiers -->
+  <path d="M4 12 Q12 8 20 12 L20 16 Q12 12 4 16 Z" fill="currentColor" opacity="0.6"/>
+  <path d="M6 10 Q12 6 18 10 L18 14 Q12 10 6 14 Z" fill="currentColor" opacity="0.8"/>
+  
+  <!-- Floodlights -->
+  <rect x="3" y="4" width="1" height="8" fill="currentColor"/>
+  <rect x="20" y="4" width="1" height="8" fill="currentColor"/>
+  <circle cx="3.5" cy="4" r="1" fill="currentColor"/>
+  <circle cx="20.5" cy="4" r="1" fill="currentColor"/>
+  
+  <!-- Pitch -->
+  <ellipse cx="12" cy="14" rx="6" ry="2" fill="none" stroke="currentColor" stroke-width="1"/>
+  
+  <!-- Cricket stumps -->
+  <rect x="11.5" y="12" width="1" height="2" fill="currentColor"/>
+</svg>

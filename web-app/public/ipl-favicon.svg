@@ -1,0 +1,13 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Simple cricket ball favicon -->
+  <circle cx="16" cy="16" r="14" fill="#FF6B35"/>
+  
+  <!-- Cricket ball seam -->
+  <path d="M 6 16 Q 10 10 16 12 Q 22 10 26 16 Q 22 22 16 20 Q 10 22 6 16" 
+        stroke="#FFFFFF" stroke-width="1.5" fill="none"/>
+  <path d="M 6 16 Q 10 22 16 20 Q 22 22 26 16 Q 22 10 16 12 Q 10 10 6 16" 
+        stroke="#FFFFFF" stroke-width="1.5" fill="none"/>
+        
+  <!-- Simple IPL indicator -->
+  <circle cx="16" cy="16" r="4" fill="#FFFFFF" opacity="0.8"/>
+</svg>
