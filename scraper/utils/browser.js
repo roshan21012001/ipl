@@ -59,7 +59,7 @@ export async function createBrowser() {
             '--memory-pressure-off',
             isProduction ? '--disable-extensions' : ''
         ].filter(Boolean),
-        executablePath: isProduction ? puppeteer.executablePath() : undefined
+        executablePath: isProduction ? process.env.PUPPETEER_EXECUTABLE_PATH : undefined
     });
     
     return browser;
