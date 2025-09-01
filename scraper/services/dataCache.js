@@ -16,7 +16,9 @@ class DataCache {
         // Shared browser instance
         this.browser = null;
         
-        this.IPL_YEARS = [2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013, 2012, 2011, 2010, 2009, 2008];
+        // Only years with confirmed data availability on current IPL website structure
+        this.IPL_YEARS = [2025, 2024, 2023, 2022];
+        this.ALL_IPL_YEARS = [2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013, 2012, 2011, 2010, 2009, 2008];
         this.REFRESH_INTERVAL = 30 * 60 * 1000; // 30 minutes
         this.refreshTimer = null;
     }
@@ -58,7 +60,7 @@ class DataCache {
                 const teams = await scrapeTeams(2025, this.browser); // Pass shared browser
                 console.log(`✅ Teams loaded: ${teams.teams?.length || 0} teams`);
                 
-                // Cache same teams data for all years
+                // Cache same teams data for available years
                 for (const year of this.IPL_YEARS) {
                     this.cache.teams[year] = {
                         ...teams,
@@ -66,12 +68,35 @@ class DataCache {
                         note: 'Teams data is consistent across all IPL years'
                     };
                 }
-                console.log(`📋 Teams data cached for all ${this.IPL_YEARS.length} years`);
+                
+                // Set "no data" message for older years not available on current website
+                const unavailableYears = [2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013, 2012, 2011, 2010, 2009, 2008];
+                for (const year of unavailableYears) {
+                    this.cache.teams[year] = {
+                        teams: [],
+                        year: year,
+                        error: `Data not available for ${year} on current IPL website structure`,
+                        note: `Historical data for ${year} season is not accessible via current IPL API`
+                    };
+                }
+                
+                console.log(`📋 Teams data cached for ${this.IPL_YEARS.length} available years`);
             } catch (error) {
                 console.log(`⚠️ Teams loading failed: ${error.message}`);
-                // Set error for all years
+                // Set error for available years
                 for (const year of this.IPL_YEARS) {
                     this.cache.teams[year] = { error: error.message, teams: [] };
+                }
+                
+                // Set "no data" for unavailable years
+                const unavailableYears = [2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013, 2012, 2011, 2010, 2009, 2008];
+                for (const year of unavailableYears) {
+                    this.cache.teams[year] = {
+                        teams: [],
+                        year: year,
+                        error: `Data not available for ${year} on current IPL website structure`,
+                        note: `Historical data for ${year} season is not accessible via current IPL API`
+                    };
                 }
             }
 
