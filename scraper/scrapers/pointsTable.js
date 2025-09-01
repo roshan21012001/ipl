@@ -51,10 +51,11 @@ function parseTeamRow(row, columnMap, rowIndex) {
     }
 }
 
-export async function scrapePointsTable(year = 2025) {
-    console.log('DEBUG: Attempting to create browser...');
-    const browser = await createBrowser();
-    console.log('DEBUG: Browser created.');
+export async function scrapePointsTable(year = 2025, sharedBrowser = null) {
+    const browser = sharedBrowser || await createBrowser();
+    const shouldCloseBrowser = !sharedBrowser; // Only close if we created it
+    
+    console.log('DEBUG: Using browser for points table...');
     
     try {
         const page = await createPage(browser);
@@ -123,9 +124,11 @@ export async function scrapePointsTable(year = 2025) {
         console.error('ERROR: An error occurred during scraping:', error);
         throw error; // Re-throw to ensure it's caught by the server.js handler
     } finally {
-        if (browser) {
+        if (shouldCloseBrowser && browser) {
             await browser.close();
             console.log('DEBUG: Browser closed.');
         }
+        // If using shared browser, just close the page (browser stays open)
+        // Page is automatically closed when function ends
     }
 }

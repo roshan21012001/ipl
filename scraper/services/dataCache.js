@@ -1,6 +1,7 @@
 import { scrapePointsTable } from '../scrapers/pointsTable.js';
 import { scrapeMatches } from '../scrapers/matches.js';
 import { scrapeTeams } from '../scrapers/teams.js';
+import { createBrowser } from '../utils/browser.js';
 
 class DataCache {
     constructor() {
@@ -12,9 +13,29 @@ class DataCache {
             isLoading: false
         };
         
+        // Shared browser instance
+        this.browser = null;
+        
         this.IPL_YEARS = [2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013, 2012, 2011, 2010, 2009, 2008];
         this.REFRESH_INTERVAL = 30 * 60 * 1000; // 30 minutes
         this.refreshTimer = null;
+    }
+
+    async ensureBrowser() {
+        if (!this.browser) {
+            console.log('🌐 Creating shared browser instance...');
+            this.browser = await createBrowser();
+            console.log('✅ Shared browser ready');
+        }
+        return this.browser;
+    }
+
+    async closeBrowser() {
+        if (this.browser) {
+            await this.browser.close();
+            this.browser = null;
+            console.log('🔒 Shared browser closed');
+        }
     }
 
     async preloadAllData() {
@@ -28,10 +49,13 @@ class DataCache {
         const startTime = Date.now();
 
         try {
+            // Initialize shared browser
+            await this.ensureBrowser();
+            
             // Load teams data once (same for all years)
             console.log('👥 Loading teams data (once for all years)...');
             try {
-                const teams = await scrapeTeams(2025); // Use latest year
+                const teams = await scrapeTeams(2025, this.browser); // Pass shared browser
                 console.log(`✅ Teams loaded: ${teams.teams?.length || 0} teams`);
                 
                 // Cache same teams data for all years
@@ -55,7 +79,7 @@ class DataCache {
             console.log('📊 Loading points table data (2025 → 2008)...');
             for (const year of this.IPL_YEARS) {
                 try {
-                    const pointsTable = await scrapePointsTable(year);
+                    const pointsTable = await scrapePointsTable(year, this.browser); // Pass shared browser
                     this.cache.pointsTable[year] = pointsTable;
                     console.log(`✅ Points ${year}: ${pointsTable.teams?.length || 0} teams loaded`);
                 } catch (error) {
@@ -70,7 +94,7 @@ class DataCache {
             console.log('🏏 Loading matches data (2025 → 2008)...');
             for (const year of this.IPL_YEARS) {
                 try {
-                    const matches = await scrapeMatches(year);
+                    const matches = await scrapeMatches(year, this.browser); // Pass shared browser
                     this.cache.matches[year] = matches;
                     console.log(`✅ Matches ${year}: ${matches.length || 0} matches loaded`);
                 } catch (error) {
@@ -92,6 +116,7 @@ class DataCache {
             
         } catch (error) {
             console.error('❌ Data preload failed:', error);
+            // Keep browser open for future use
         } finally {
             this.cache.isLoading = false;
         }
@@ -112,16 +137,18 @@ class DataCache {
 
     async refreshRecentData() {
         // Only refresh recent years (2023, 2024, 2025) to save time
-        const recentYears = [2023, 2024, 2025];
+        const recentYears = [2025, 2024, 2023];
+        
+        await this.ensureBrowser(); // Ensure browser is available
         
         for (const year of recentYears) {
             try {
                 // Refresh points table
-                const pointsTable = await scrapePointsTable(year);
+                const pointsTable = await scrapePointsTable(year, this.browser);
                 this.cache.pointsTable[year] = pointsTable;
                 
                 // Refresh matches
-                const matches = await scrapeMatches(year);
+                const matches = await scrapeMatches(year, this.browser);
                 this.cache.matches[year] = matches;
                 
                 console.log(`🔄 Refreshed data for ${year}`);
@@ -182,19 +209,20 @@ class DataCache {
     }
 
     async forceRefresh(year = null) {
+        await this.ensureBrowser(); // Ensure browser is available
+        
         if (year) {
             console.log(`🔄 Force refreshing data for ${year}...`);
             
             try {
-                const [pointsTable, matches, teams] = await Promise.all([
-                    scrapePointsTable(year),
-                    scrapeMatches(year),
-                    scrapeTeams(year)
+                const [pointsTable, matches] = await Promise.all([
+                    scrapePointsTable(year, this.browser),
+                    scrapeMatches(year, this.browser)
                 ]);
                 
                 this.cache.pointsTable[year] = pointsTable;
                 this.cache.matches[year] = matches;
-                this.cache.teams[year] = teams;
+                // Teams data is same for all years, no need to refresh
                 this.cache.lastUpdated = new Date().toISOString();
                 
                 console.log(`✅ Force refresh completed for ${year}`);

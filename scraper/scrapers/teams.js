@@ -1,7 +1,8 @@
 import { createBrowser, createPage, waitForPageLoad } from '../utils/browser.js';
 
-export async function scrapeTeams(year = 2025) {
-    const browser = await createBrowser();
+export async function scrapeTeams(year = 2025, sharedBrowser = null) {
+    const browser = sharedBrowser || await createBrowser();
+    const shouldCloseBrowser = !sharedBrowser; // Only close if we created it
     
     try {
         const page = await createPage(browser);
@@ -213,6 +214,10 @@ export async function scrapeTeams(year = 2025) {
             note: 'Failed to scrape team data - no hardcoded data used'
         };
     } finally {
-        await browser.close();
+        if (shouldCloseBrowser && browser) {
+            await browser.close();
+            console.log('DEBUG: Browser closed.');
+        }
+        // If using shared browser, page is automatically closed when function ends
     }
 }
