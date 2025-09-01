@@ -28,7 +28,7 @@ try {
     await page.goto(`https://www.iplt20.com/points-table/men/${year}`);
     
     // Wait for page to fully load
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await new Promise(resolve => setTimeout(resolve, 1000));
     
     // Check if page loaded at all
     const pageTitle = await page.title();    

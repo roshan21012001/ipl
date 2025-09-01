@@ -2,7 +2,6 @@
 import { scrapePointsTable } from './scrapers/pointsTable.js';
 import { scrapeMatches } from './scrapers/matches.js';
 import { scrapeTeams } from './scrapers/teams.js';
-import { respectfulDelay } from './utils/browser.js';
 
 async function runPointsTableScraper(year = 2025) {
     const pointsTable = await scrapePointsTable(year);
@@ -10,13 +9,11 @@ async function runPointsTableScraper(year = 2025) {
 }
 
 async function runMatchesScraper(year = 2025) {
-    await respectfulDelay(3000, 6000);
     const matches = await scrapeMatches(year);
     return matches;
 }
 
 async function runTeamsScraper(year = 2025) {
-    await respectfulDelay(3000, 6000);
     const teams = await scrapeTeams(year);
     return teams;
 }

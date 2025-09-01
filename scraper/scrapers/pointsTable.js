@@ -1,4 +1,4 @@
-import { createBrowser, createPage, waitForPageLoad, respectfulDelay } from '../utils/browser.js';
+import { createBrowser, createPage, waitForPageLoad } from '../utils/browser.js';
 
 // Universal Points Table Parser for all IPL years (2008-2025)
 function createColumnMap(headerRow) {
@@ -60,7 +60,6 @@ export async function scrapePointsTable(year = 2025) {
         const page = await createPage(browser);
         
         console.log(`📊 Loading points table for ${year}...`);
-        await respectfulDelay(); // Add delay before request
         console.log(`DEBUG: Navigating to URL: https://www.iplt20.com/points-table/men/${year}`);
         await page.goto(`https://www.iplt20.com/points-table/men/${year}`);
         console.log('DEBUG: Page navigation initiated.');

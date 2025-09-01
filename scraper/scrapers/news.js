@@ -1,4 +1,4 @@
-import { createBrowser, createPage, waitForPageLoad, respectfulDelay } from '../utils/browser.js';
+import { createBrowser, createPage, waitForPageLoad } from '../utils/browser.js';
 
 export async function scrapeNews(limit = 20) {
     const browser = await createBrowser();
@@ -7,12 +7,8 @@ export async function scrapeNews(limit = 20) {
         const page = await createPage(browser);
         
         console.log(`📰 Loading IPL news...`);
-        await respectfulDelay(); // Add delay before request
         await page.goto('https://www.iplt20.com/news');
         await waitForPageLoad(page);
-        
-        // Wait for news elements to load
-        await new Promise(resolve => setTimeout(resolve, 3000));
         
         let newsArticles = [];
         

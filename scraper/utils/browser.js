@@ -115,12 +115,7 @@ export async function createPage(browser) {
     return page;
 }
 
-export async function respectfulDelay(min = 2000, max = 5000) {
-    const delay = Math.random() * (max - min) + min;
-    console.log(`⏱️  Waiting ${Math.round(delay/1000)}s to respect rate limits...`);
-    await new Promise(resolve => setTimeout(resolve, delay));
-}
 
-export async function waitForPageLoad(page, timeout = 3000) {
+export async function waitForPageLoad(page, timeout = 1000) {
     await new Promise(resolve => setTimeout(resolve, timeout));
 }

@@ -1,4 +1,4 @@
-import { createBrowser, createPage, waitForPageLoad, respectfulDelay } from '../utils/browser.js';
+import { createBrowser, createPage, waitForPageLoad } from '../utils/browser.js';
 
 export async function scrapeTeams(year = 2025) {
     const browser = await createBrowser();
@@ -7,12 +7,8 @@ export async function scrapeTeams(year = 2025) {
         const page = await createPage(browser);
         
         console.log(`👥 Loading teams data from iplt20.com/teams...`);
-        await respectfulDelay();
         await page.goto(`https://www.iplt20.com/teams`);
         await waitForPageLoad(page);
-        
-        // Wait for team elements to load
-        await new Promise(resolve => setTimeout(resolve, 3000));
         
         let teams = [];
         

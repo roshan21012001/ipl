@@ -1,4 +1,4 @@
-import { createBrowser, createPage, waitForPageLoad, respectfulDelay } from '../utils/browser.js';
+import { createBrowser, createPage, waitForPageLoad } from '../utils/browser.js';
 
 export async function scrapeMatches(year = 2025) {
     const browser = await createBrowser();
@@ -7,7 +7,6 @@ export async function scrapeMatches(year = 2025) {
         const page = await createPage(browser);
         
         console.log(`🏆 Loading matches for ${year}...`);
-        await respectfulDelay(); // Add delay before request
         
         // Try current year first, fallback to 2024 if no data
         let url = `https://www.iplt20.com/matches/results/${year}`;     
@@ -15,7 +14,6 @@ export async function scrapeMatches(year = 2025) {
         await waitForPageLoad(page);
         
         // Wait for match elements to load
-        await new Promise(resolve => setTimeout(resolve, 2000));
         
         // Check for pagination or load more buttons
         const paginationInfo = await page.evaluate(() => {
