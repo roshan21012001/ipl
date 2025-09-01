@@ -33,20 +33,28 @@ class IPLCache {
 
   private async loadFromDisk() {
     try {
-      const files = await fs.readdir(this.cacheDir);
+      await this.ensureCacheDir();
+      const files = await fs.readdir(this.cacheDir).catch(() => []);
       for (const file of files) {
         if (file.endsWith('.json')) {
-          const key = file.replace('.json', '');
-          const filePath = join(this.cacheDir, file);
-          const content = await fs.readFile(filePath, 'utf-8');
-          const entry: CacheEntry = JSON.parse(content);
-          
-          // Only load if not expired
-          if (this.isValid(entry)) {
-            this.cache.set(key, entry);
-          } else {
-            // Clean up expired file
-            await fs.unlink(filePath).catch(() => {});
+          try {
+            const key = file.replace('.json', '');
+            const filePath = join(this.cacheDir, file);
+            
+            // Check if file exists before reading
+            await fs.access(filePath);
+            const content = await fs.readFile(filePath, 'utf-8');
+            const entry: CacheEntry = JSON.parse(content);
+            
+            // Only load if not expired
+            if (this.isValid(entry)) {
+              this.cache.set(key, entry);
+            } else {
+              // Clean up expired file
+              await fs.unlink(filePath).catch(() => {});
+            }
+          } catch (fileError) {
+            console.log(`⚠️ Skipping invalid cache file: ${file}`);
           }
         }
       }
@@ -58,6 +66,7 @@ class IPLCache {
 
   private async saveToDisk(key: string, entry: CacheEntry) {
     try {
+      await this.ensureCacheDir();
       const filePath = join(this.cacheDir, `${key}.json`);
       await fs.writeFile(filePath, JSON.stringify(entry, null, 2));
     } catch (error) {
