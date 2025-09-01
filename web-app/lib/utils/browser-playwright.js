@@ -5,25 +5,23 @@ async function getChromium() {
     if (chromium) return chromium;
     
     try {
-        if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
-            const playwrightAws = await import('playwright-aws-lambda');
-            chromium = playwrightAws.chromium;
-        } else {
-            const playwright = await import('playwright');
-            chromium = playwright.chromium;
-        }
-    } catch (error) {
-        console.warn('⚠️ Primary chromium import failed, trying fallback...');
+        // Try playwright-aws-lambda first for serverless environments
+        const playwrightAws = await import('playwright-aws-lambda');
+        chromium = playwrightAws.chromium;
+        console.log('✅ Using playwright-aws-lambda');
+        return chromium;
+    } catch (awsError) {
         try {
+            // Fallback to regular playwright
             const playwright = await import('playwright');
             chromium = playwright.chromium;
-        } catch (fallbackError) {
-            console.error('❌ Both chromium imports failed:', error.message, fallbackError.message);
-            throw new Error('Cannot import chromium from playwright');
+            console.log('✅ Using regular playwright');
+            return chromium;
+        } catch (regularError) {
+            console.error('❌ Failed to import any playwright:', awsError.message, regularError.message);
+            throw new Error('Cannot import chromium from any playwright package');
         }
     }
-    
-    return chromium;
 }
 
 const USER_AGENTS = [
