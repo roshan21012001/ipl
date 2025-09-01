@@ -1,6 +1,4 @@
-import { chromium as playwrightChromium } from 'playwright';
-
-let chromium = playwrightChromium;
+// No static imports - use dynamic imports only
 
 const USER_AGENTS = [
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -17,17 +15,48 @@ export async function createBrowser() {
     
     console.log(`🌐 Creating Playwright browser (serverless: ${isLambda})...`);
     
-    // Try to use playwright-aws-lambda for serverless, fallback to regular
-    if (isLambda) {
-        try {
+    let chromium;
+    
+    // Try playwright-aws-lambda first for serverless, then regular playwright
+    try {
+        if (isLambda) {
+            console.log('🔄 Trying playwright-aws-lambda...');
             const awsPlaywright = await import('playwright-aws-lambda');
-            console.log('✅ Using playwright-aws-lambda for serverless');
             chromium = awsPlaywright.chromium;
-        } catch (error) {
-            console.log('⚠️ playwright-aws-lambda not available, using regular playwright');
+            console.log('✅ Using playwright-aws-lambda for serverless');
+        } else {
+            console.log('🔄 Trying regular playwright...');
+            const playwright = await import('playwright');
+            chromium = playwright.chromium;
+            console.log('✅ Using regular playwright for local');
+        }
+    } catch (primaryError) {
+        console.log(`⚠️ Primary import failed: ${primaryError.message}`);
+        
+        // Try the other option as fallback
+        try {
+            if (isLambda) {
+                console.log('🔄 Fallback to regular playwright...');
+                const playwright = await import('playwright');
+                chromium = playwright.chromium;
+                console.log('✅ Fallback to regular playwright successful');
+            } else {
+                console.log('🔄 Fallback to playwright-aws-lambda...');
+                const awsPlaywright = await import('playwright-aws-lambda');
+                chromium = awsPlaywright.chromium;
+                console.log('✅ Fallback to playwright-aws-lambda successful');
+            }
+        } catch (fallbackError) {
+            console.error(`❌ Both imports failed:`, primaryError.message, fallbackError.message);
+            throw new Error(`Cannot import chromium: ${primaryError.message} | ${fallbackError.message}`);
         }
     }
     
+    if (!chromium) {
+        throw new Error('Chromium is undefined after import attempts');
+    }
+    
+    console.log('🚀 Launching chromium browser...');
     const browser = await chromium.launch({
         headless: true,
         args: [
