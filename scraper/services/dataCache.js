@@ -12,7 +12,7 @@ class DataCache {
             isLoading: false
         };
         
-        this.IPL_YEARS = [2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025];
+        this.IPL_YEARS = [2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013, 2012, 2011, 2010, 2009, 2008];
         this.REFRESH_INTERVAL = 30 * 60 * 1000; // 30 minutes
         this.refreshTimer = null;
     }
@@ -28,24 +28,31 @@ class DataCache {
         const startTime = Date.now();
 
         try {
-            // Load teams data (usually same across years, but we'll cache for each year)
-            console.log('👥 Loading teams data...');
-            for (const year of this.IPL_YEARS) {
-                try {
-                    const teams = await scrapeTeams(year);
-                    this.cache.teams[year] = teams;
-                    console.log(`✅ Teams ${year}: ${teams.teams?.length || 0} teams loaded`);
-                } catch (error) {
-                    console.log(`⚠️ Teams ${year}: ${error.message}`);
+            // Load teams data once (same for all years)
+            console.log('👥 Loading teams data (once for all years)...');
+            try {
+                const teams = await scrapeTeams(2025); // Use latest year
+                console.log(`✅ Teams loaded: ${teams.teams?.length || 0} teams`);
+                
+                // Cache same teams data for all years
+                for (const year of this.IPL_YEARS) {
+                    this.cache.teams[year] = {
+                        ...teams,
+                        year: year,
+                        note: 'Teams data is consistent across all IPL years'
+                    };
+                }
+                console.log(`📋 Teams data cached for all ${this.IPL_YEARS.length} years`);
+            } catch (error) {
+                console.log(`⚠️ Teams loading failed: ${error.message}`);
+                // Set error for all years
+                for (const year of this.IPL_YEARS) {
                     this.cache.teams[year] = { error: error.message, teams: [] };
                 }
-                
-                // Small delay between requests to avoid overwhelming the site
-                await new Promise(resolve => setTimeout(resolve, 500));
             }
 
-            // Load points table data
-            console.log('📊 Loading points table data...');
+            // Load points table data (from recent to old: 2025 → 2008)
+            console.log('📊 Loading points table data (2025 → 2008)...');
             for (const year of this.IPL_YEARS) {
                 try {
                     const pointsTable = await scrapePointsTable(year);
@@ -59,8 +66,8 @@ class DataCache {
                 await new Promise(resolve => setTimeout(resolve, 500));
             }
 
-            // Load matches data
-            console.log('🏏 Loading matches data...');
+            // Load matches data (from recent to old: 2025 → 2008)
+            console.log('🏏 Loading matches data (2025 → 2008)...');
             for (const year of this.IPL_YEARS) {
                 try {
                     const matches = await scrapeMatches(year);

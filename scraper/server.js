@@ -182,7 +182,7 @@ app.get('/', (req, res) => {
       'GET /api/refresh?year=2025',
       'GET /health'
     ],
-    availableYears: [2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
+    availableYears: [2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013, 2012, 2011, 2010, 2009, 2008],
     version: '2.0.0',
     features: ['Memory Cache', 'Instant Response', 'All IPL Years']
   });
