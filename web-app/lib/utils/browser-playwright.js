@@ -1,4 +1,21 @@
-import { chromium } from 'playwright-aws-lambda';
+// Import chromium from appropriate source based on environment
+let chromium;
+
+try {
+    if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+        chromium = require('playwright-aws-lambda').chromium;
+    } else {
+        chromium = require('playwright').chromium;
+    }
+} catch (error) {
+    console.warn('⚠️ Primary chromium import failed, trying fallback...');
+    try {
+        chromium = require('playwright').chromium;
+    } catch (fallbackError) {
+        console.error('❌ Both chromium imports failed:', error.message, fallbackError.message);
+        throw new Error('Cannot import chromium from playwright');
+    }
+}
 
 const USER_AGENTS = [
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -37,25 +54,21 @@ export async function createBrowser() {
 }
 
 export async function createPage(browser) {
-    const page = await browser.newPage();
-    
-    // Set random user agent
-    const userAgent = getRandomUserAgent();
-    await page.setUserAgent(userAgent);
-    console.log(`🔄 Using User Agent: ${userAgent.split(' ')[0]}...`);
-    
-    // Set viewport
-    await page.setViewportSize({ width: 1920, height: 1080 });
-    
-    // Set headers
-    await page.setExtraHTTPHeaders({
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'DNT': '1',
-        'Connection': 'keep-alive',
-        'Upgrade-Insecure-Requests': '1',
+    const context = await browser.newContext({
+        userAgent: getRandomUserAgent(),
+        viewport: { width: 1920, height: 1080 },
+        extraHTTPHeaders: {
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'DNT': '1',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+        }
     });
+    
+    const page = await context.newPage();
+    console.log(`🔄 Created new page with random user agent`);
     
     return page;
 }
