@@ -6,9 +6,6 @@
       "maxDuration": 30
     }
   },
-  "env": {
-    "SCRAPER_SERVICE_URL": "@scraper-service-url"
-  },
   "headers": [
     {
       "source": "/api/(.*)",
