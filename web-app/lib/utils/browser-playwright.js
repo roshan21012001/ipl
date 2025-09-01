@@ -1,28 +1,6 @@
-// Import chromium from appropriate source based on environment
-let chromium;
+import { chromium as playwrightChromium } from 'playwright';
 
-async function getChromium() {
-    if (chromium) return chromium;
-    
-    try {
-        // Try playwright-aws-lambda first for serverless environments
-        const playwrightAws = await import('playwright-aws-lambda');
-        chromium = playwrightAws.chromium;
-        console.log('✅ Using playwright-aws-lambda');
-        return chromium;
-    } catch (awsError) {
-        try {
-            // Fallback to regular playwright
-            const playwright = await import('playwright');
-            chromium = playwright.chromium;
-            console.log('✅ Using regular playwright');
-            return chromium;
-        } catch (regularError) {
-            console.error('❌ Failed to import any playwright:', awsError.message, regularError.message);
-            throw new Error('Cannot import chromium from any playwright package');
-        }
-    }
-}
+let chromium = playwrightChromium;
 
 const USER_AGENTS = [
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -39,8 +17,18 @@ export async function createBrowser() {
     
     console.log(`🌐 Creating Playwright browser (serverless: ${isLambda})...`);
     
-    const chromiumInstance = await getChromium();
-    const browser = await chromiumInstance.launch({
+    // Try to use playwright-aws-lambda for serverless, fallback to regular
+    if (isLambda) {
+        try {
+            const awsPlaywright = await import('playwright-aws-lambda');
+            console.log('✅ Using playwright-aws-lambda for serverless');
+            chromium = awsPlaywright.chromium;
+        } catch (error) {
+            console.log('⚠️ playwright-aws-lambda not available, using regular playwright');
+        }
+    }
+    
+    const browser = await chromium.launch({
         headless: true,
         args: [
             '--no-sandbox',
