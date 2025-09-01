@@ -1,4 +1,4 @@
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
 
 const USER_AGENTS = [
@@ -38,13 +38,19 @@ function getRandomAcceptLanguage() {
 }
 
 export async function createBrowser() {
-    const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL;
+    const isVercel = process.env.VERCEL === '1' || process.env.AWS_LAMBDA_FUNCTION_NAME;
     
-    console.log(`🌐 Creating browser (production: ${isProduction})...`);
+    console.log(`🌐 Creating browser (Vercel: ${isVercel}, NODE_ENV: ${process.env.NODE_ENV})...`);
     
-    const browser = await puppeteer.launch({
+    let executablePath;
+    if (isVercel) {
+        executablePath = await chromium.executablePath();
+        console.log(`📍 Using Chromium executable: ${executablePath}`);
+    }
+    
+    const browserConfig = {
         headless: true,
-        args: isProduction ? [
+        args: isVercel ? [
             ...chromium.args,
             '--no-sandbox',
             '--disable-setuid-sandbox',
@@ -61,7 +67,8 @@ export async function createBrowser() {
             '--disable-backgrounding-occluded-windows',
             '--disable-renderer-backgrounding',
             '--memory-pressure-off',
-            '--disable-extensions'
+            '--disable-extensions',
+            '--disable-features=VizDisplayCompositor'
         ] : [
             '--no-sandbox',
             '--disable-setuid-sandbox',
@@ -78,11 +85,42 @@ export async function createBrowser() {
             '--disable-renderer-backgrounding',
             '--memory-pressure-off'
         ],
-        executablePath: isProduction ? await chromium.executablePath() : undefined
+        executablePath: executablePath
+    };
+    
+    console.log(`🔧 Browser config:`, { 
+        isVercel, 
+        executablePath: executablePath || 'system default',
+        argsCount: browserConfig.args.length 
     });
     
-    console.log(`✅ Browser created successfully`);
-    return browser;
+    try {
+        const browser = await puppeteer.launch(browserConfig);
+        console.log(`✅ Browser created successfully`);
+        return browser;
+    } catch (error) {
+        console.error(`❌ Browser launch failed:`, error.message);
+        
+        if (isVercel) {
+            console.log(`🔄 Retrying with minimal config for Vercel...`);
+            // Fallback configuration for Vercel
+            const fallbackConfig = {
+                headless: true,
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--disable-dev-shm-usage',
+                    '--single-process',
+                    '--disable-gpu'
+                ],
+                executablePath: executablePath
+            };
+            
+            return await puppeteer.launch(fallbackConfig);
+        }
+        
+        throw error;
+    }
 }
 
 export async function createPage(browser) {
