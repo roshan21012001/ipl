@@ -6,8 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint",
-    "postinstall": "npx puppeteer browsers install chrome"
+    "lint": "eslint"
   },
   "dependencies": {
     "react": "19.1.0",

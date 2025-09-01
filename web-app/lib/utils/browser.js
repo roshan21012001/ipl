@@ -38,18 +38,21 @@ function getRandomAcceptLanguage() {
 }
 
 export async function createBrowser() {
-    const isProduction = process.env.NODE_ENV === 'production';
+    const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL;
+    
+    console.log(`🌐 Creating browser (production: ${isProduction})...`);
     
     const browser = await puppeteer.launch({
         headless: true,
-        args: isProduction ? chromium.args : [
+        args: isProduction ? [
+            ...chromium.args,
             '--no-sandbox',
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
             '--disable-accelerated-2d-canvas',
             '--no-first-run',
             '--no-zygote',
-            // '--single-process', // Removed, handled by chromium.args
+            '--single-process',
             '--disable-gpu',
             '--disable-images',
             '--disable-web-security',
@@ -58,11 +61,27 @@ export async function createBrowser() {
             '--disable-backgrounding-occluded-windows',
             '--disable-renderer-backgrounding',
             '--memory-pressure-off',
-            isProduction ? '--disable-extensions' : ''
-        ].filter(Boolean),
+            '--disable-extensions'
+        ] : [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--no-first-run',
+            '--no-zygote',
+            '--disable-gpu',
+            '--disable-images',
+            '--disable-web-security',
+            '--disable-blink-features=AutomationControlled',
+            '--disable-background-timer-throttling',
+            '--disable-backgrounding-occluded-windows',
+            '--disable-renderer-backgrounding',
+            '--memory-pressure-off'
+        ],
         executablePath: isProduction ? await chromium.executablePath() : undefined
     });
     
+    console.log(`✅ Browser created successfully`);
     return browser;
 }
 
