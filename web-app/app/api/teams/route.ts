@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { iplCache } from '@/lib/cache';
 
 const SCRAPER_SERVICE_URL = process.env.SCRAPER_SERVICE_URL || 'http://localhost:3001';
 
@@ -8,18 +7,7 @@ export async function GET(request: NextRequest) {
   const year = searchParams.get('year') || '2025';
   const forceRefresh = searchParams.get('refresh') === 'true';
   
-  const cacheKey = `teams-${year}`;
-  
   try {
-    // Check cache first (unless refresh is requested)
-    if (!forceRefresh) {
-      const cachedData = await iplCache.get(cacheKey);
-      if (cachedData) {
-        console.log('👥 Serving cached teams data');
-        return NextResponse.json(cachedData);
-      }
-    }
-    
     console.log(`👥 Loading teams data for ${year}...`);
     
     // Call external scraper service
@@ -39,9 +27,6 @@ export async function GET(request: NextRequest) {
     }
     
     const teamsData = await response.json();
-    
-    // Cache the result for 15 minutes (teams data changes less frequently)
-    await iplCache.set(cacheKey, teamsData, 15);
     
     console.log(`✅ Loaded teams: ${teamsData.teams?.length || 0} teams from external service`);
     

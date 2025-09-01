@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { iplCache } from '@/lib/cache';
 
 const SCRAPER_SERVICE_URL = process.env.SCRAPER_SERVICE_URL || 'http://localhost:3001';
 
@@ -8,18 +7,7 @@ export async function GET(request: NextRequest) {
   const limit = searchParams.get('limit') || '20';
   const forceRefresh = searchParams.get('refresh') === 'true';
   
-  const cacheKey = `news-${limit}`;
-  
   try {
-    // Check cache first (unless refresh is requested)
-    if (!forceRefresh) {
-      const cachedData = await iplCache.get(cacheKey);
-      if (cachedData) {
-        console.log('📰 Serving cached news data');
-        return NextResponse.json(cachedData);
-      }
-    }
-    
     console.log(`📰 Loading news data (limit: ${limit})...`);
     
     // Call external scraper service
@@ -39,9 +27,6 @@ export async function GET(request: NextRequest) {
     }
     
     const newsData = await response.json();
-    
-    // Cache the result for 10 minutes
-    await iplCache.set(cacheKey, newsData, 10);
     
     console.log(`✅ Loaded news with ${newsData.articles?.length || 0} articles from external service`);
     
