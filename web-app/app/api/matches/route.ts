@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { scrapeMatches } from '@/lib/scrapers/matches.js';
+import { scrapeMatches } from '@/lib/scrapers/matches-playwright.js';
 
 export async function GET(request: NextRequest) {
   try {

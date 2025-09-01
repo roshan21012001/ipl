@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { scrapePointsTable } from '@/lib/scrapers/pointsTable.js';
+import { scrapePointsTable } from '@/lib/scrapers/pointsTable-playwright.js';
 
 export async function GET(request: NextRequest) {
   try {
