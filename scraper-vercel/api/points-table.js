@@ -1,6 +1,5 @@
-
 import puppeteer from 'puppeteer-core';
-import chromium from '@sparticuz/chromium';
+import * as chromium from '@sparticuz/chromium';
 
 // Universal Points Table Parser for all IPL years (2008-2025)
 function createColumnMap(headerRow) {
@@ -58,6 +57,7 @@ export default async function handler(req, res) {
   try {
     const { year = '2025' } = req.query;
 
+    console.log('Chromium object:', chromium);
     const executablePath = await chromium.executablePath();
 
     browser = await puppeteer.launch({
