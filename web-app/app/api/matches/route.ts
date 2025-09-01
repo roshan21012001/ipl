@@ -23,8 +23,8 @@ export async function GET(request: NextRequest) {
         'Content-Type': 'application/json',
         'User-Agent': 'IPL-Dashboard/1.0'
       },
-      // Timeout after 60 seconds (to handle Render cold starts)
-      signal: AbortSignal.timeout(60000)
+      // Timeout after 25 seconds (Vercel has 30s function limit)
+      signal: AbortSignal.timeout(25000)
     });
     
     if (!response.ok) {

@@ -23,8 +23,8 @@ export async function GET(request: NextRequest) {
         'Content-Type': 'application/json',
         'User-Agent': 'IPL-Dashboard/1.0'
       },
-      // Timeout after 60 seconds (to handle Render cold starts)
-      signal: AbortSignal.timeout(60000)
+      // Timeout after 25 seconds (Vercel has 30s function limit)
+      signal: AbortSignal.timeout(25000)
     });
     
     if (!response.ok) {
@@ -58,18 +58,23 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('❌ External scraper service error:', error);
     
+    const isTimeout = (error as Error).message.includes('aborted due to timeout');
+    
     return NextResponse.json(
       { 
         error: 'Failed to fetch points table data',
-        message: (error as Error).message,
+        message: isTimeout ? 
+          'Service is starting up, please try again in 30 seconds' : 
+          (error as Error).message,
         service: 'external-scraper',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        retryAfter: isTimeout ? 30 : 60
       },
       { 
         status: 503,
         headers: {
-          'X-Service-Status': 'unavailable',
-          'Retry-After': '60'
+          'X-Service-Status': isTimeout ? 'cold-start' : 'unavailable',
+          'Retry-After': isTimeout ? '30' : '60'
         }
       }
     );
