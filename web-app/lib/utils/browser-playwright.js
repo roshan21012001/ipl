@@ -1,20 +1,29 @@
 // Import chromium from appropriate source based on environment
 let chromium;
 
-try {
-    if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
-        chromium = require('playwright-aws-lambda').chromium;
-    } else {
-        chromium = require('playwright').chromium;
-    }
-} catch (error) {
-    console.warn('⚠️ Primary chromium import failed, trying fallback...');
+async function getChromium() {
+    if (chromium) return chromium;
+    
     try {
-        chromium = require('playwright').chromium;
-    } catch (fallbackError) {
-        console.error('❌ Both chromium imports failed:', error.message, fallbackError.message);
-        throw new Error('Cannot import chromium from playwright');
+        if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+            const playwrightAws = await import('playwright-aws-lambda');
+            chromium = playwrightAws.chromium;
+        } else {
+            const playwright = await import('playwright');
+            chromium = playwright.chromium;
+        }
+    } catch (error) {
+        console.warn('⚠️ Primary chromium import failed, trying fallback...');
+        try {
+            const playwright = await import('playwright');
+            chromium = playwright.chromium;
+        } catch (fallbackError) {
+            console.error('❌ Both chromium imports failed:', error.message, fallbackError.message);
+            throw new Error('Cannot import chromium from playwright');
+        }
     }
+    
+    return chromium;
 }
 
 const USER_AGENTS = [
@@ -32,7 +41,8 @@ export async function createBrowser() {
     
     console.log(`🌐 Creating Playwright browser (serverless: ${isLambda})...`);
     
-    const browser = await chromium.launch({
+    const chromiumInstance = await getChromium();
+    const browser = await chromiumInstance.launch({
         headless: true,
         args: [
             '--no-sandbox',
