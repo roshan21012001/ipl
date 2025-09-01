@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
       console.log(`📊 Loading points table for ${year}...`);
     }
     
-    // Call external scraper service
+    // Call external scraper service (with longer timeout for cold starts)
     const scraperUrl = `${SCRAPER_SERVICE_URL}/api/points-table?year=${year}${forceRefresh ? '&refresh=true' : ''}`;
     const response = await fetch(scraperUrl, {
       method: 'GET',
@@ -23,8 +23,8 @@ export async function GET(request: NextRequest) {
         'Content-Type': 'application/json',
         'User-Agent': 'IPL-Dashboard/1.0'
       },
-      // Timeout after 25 seconds
-      signal: AbortSignal.timeout(25000)
+      // Timeout after 60 seconds (to handle Render cold starts)
+      signal: AbortSignal.timeout(60000)
     });
     
     if (!response.ok) {
