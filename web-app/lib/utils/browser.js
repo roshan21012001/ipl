@@ -38,22 +38,20 @@ function getRandomAcceptLanguage() {
 }
 
 export async function createBrowser() {
-    const isVercel = process.env.VERCEL === '1' || process.env.AWS_LAMBDA_FUNCTION_NAME;
+    const isVercel = !!process.env.VERCEL || !!process.env.AWS_LAMBDA_FUNCTION_NAME;
+    const isProduction = process.env.NODE_ENV === 'production';
     
-    console.log(`🌐 Creating browser (Vercel: ${isVercel}, NODE_ENV: ${process.env.NODE_ENV})...`);
+    console.log(`🌐 Creating browser (Vercel: ${isVercel}, Production: ${isProduction}, Platform: ${process.platform})...`);
     
     let executablePath;
-    if (isVercel) {
-        executablePath = await chromium.executablePath();
-        console.log(`📍 Using Chromium executable: ${executablePath}`);
-    } else {
-        const puppeteerPackage = await import('puppeteer');
-        executablePath = puppeteerPackage.default.executablePath();
-    }
+    let browserArgs = [];
     
-    const browserConfig = {
-        headless: true,
-        args: isVercel ? [
+    if (isVercel) {
+        // Vercel serverless environment
+        executablePath = await chromium.executablePath({
+            path: '/tmp'
+        });
+        browserArgs = [
             ...chromium.args,
             '--no-sandbox',
             '--disable-setuid-sandbox',
@@ -63,32 +61,28 @@ export async function createBrowser() {
             '--no-zygote',
             '--single-process',
             '--disable-gpu',
-            '--disable-images',
             '--disable-web-security',
-            '--disable-blink-features=AutomationControlled',
-            '--disable-background-timer-throttling',
-            '--disable-backgrounding-occluded-windows',
-            '--disable-renderer-backgrounding',
-            '--memory-pressure-off',
-            '--disable-extensions',
             '--disable-features=VizDisplayCompositor'
-        ] : [
+        ];
+        console.log(`📍 Using Chromium for Vercel: ${executablePath}`);
+    } else {
+        // Local development
+        const puppeteerPackage = await import('puppeteer');
+        executablePath = puppeteerPackage.default.executablePath();
+        browserArgs = [
             '--no-sandbox',
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
-            '--disable-accelerated-2d-canvas',
-            '--no-first-run',
-            '--no-zygote',
-            '--disable-gpu',
-            '--disable-images',
-            '--disable-web-security',
-            '--disable-blink-features=AutomationControlled',
-            '--disable-background-timer-throttling',
-            '--disable-backgrounding-occluded-windows',
-            '--disable-renderer-backgrounding',
-            '--memory-pressure-off'
-        ],
-        executablePath: executablePath
+            '--disable-web-security'
+        ];
+        console.log(`📍 Using local Puppeteer: ${executablePath}`);
+    }
+    
+    const browserConfig = {
+        headless: true,
+        args: browserArgs,
+        executablePath: executablePath,
+        timeout: isVercel ? 60000 : 30000
     };
     
     console.log(`🔧 Browser config:`, { 
@@ -105,21 +99,41 @@ export async function createBrowser() {
         console.error(`❌ Browser launch failed:`, error.message);
         
         if (isVercel) {
-            console.log(`🔄 Retrying with minimal config for Vercel...`);
-            // Fallback configuration for Vercel
-            const fallbackConfig = {
-                headless: true,
-                args: [
-                    '--no-sandbox',
-                    '--disable-setuid-sandbox',
-                    '--disable-dev-shm-usage',
-                    '--single-process',
-                    '--disable-gpu'
-                ],
-                executablePath: executablePath
-            };
+            console.log(`🔄 Retrying with ultra-minimal config for Vercel...`);
             
-            return await puppeteer.launch(fallbackConfig);
+            // Get fresh chromium path and try again
+            try {
+                await chromium.font('https://raw.githack.com/googlei18n/noto-emoji/master/fonts/NotoColorEmoji.ttf');
+                const freshPath = await chromium.executablePath({
+                    path: '/tmp/chromium'
+                });
+                
+                const ultraMinimalConfig = {
+                    headless: 'new',
+                    args: [
+                        '--no-sandbox',
+                        '--disable-setuid-sandbox',
+                        '--disable-dev-shm-usage',
+                        '--disable-accelerated-2d-canvas',
+                        '--disable-gpu',
+                        '--disable-extensions',
+                        '--disable-default-apps',
+                        '--no-first-run',
+                        '--no-zygote',
+                        '--single-process',
+                        '--disable-background-timer-throttling'
+                    ],
+                    executablePath: freshPath,
+                    timeout: 60000
+                };
+                
+                console.log(`🔄 Trying with fresh chromium path: ${freshPath}`);
+                return await puppeteer.launch(ultraMinimalConfig);
+                
+            } catch (retryError) {
+                console.error(`❌ Retry also failed:`, retryError.message);
+                throw new Error(`Browser launch failed on Vercel: ${error.message} | Retry: ${retryError.message}`);
+            }
         }
         
         throw error;
