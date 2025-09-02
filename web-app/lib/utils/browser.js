@@ -48,9 +48,14 @@ export async function createBrowser() {
     
     if (isVercel) {
         // Vercel serverless environment
-        executablePath = await chromium.executablePath({
-            path: '/tmp'
-        });
+        try {
+            executablePath = await chromium.executablePath();
+            console.log(`🔧 Chromium path type: ${typeof executablePath}, value: ${executablePath}`);
+        } catch (pathError) {
+            console.error(`❌ Failed to get Chromium path:`, pathError);
+            throw new Error(`Chromium executable path error: ${pathError.message}`);
+        }
+        
         browserArgs = [
             ...chromium.args,
             '--no-sandbox',
@@ -81,6 +86,11 @@ export async function createBrowser() {
             '--disable-web-security'
         ];
         console.log(`📍 Using local Puppeteer: ${executablePath}`);
+    }
+    
+    // Validate executable path
+    if (!executablePath || typeof executablePath !== 'string') {
+        throw new Error(`Invalid executable path: ${typeof executablePath} - ${executablePath}`);
     }
     
     const browserConfig = {
