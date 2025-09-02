@@ -49,8 +49,22 @@ export async function createBrowser() {
     if (isVercel) {
         // Vercel serverless environment
         try {
-            executablePath = await chromium.executablePath();
-            console.log(`🔧 Chromium path type: ${typeof executablePath}, value: ${executablePath}`);
+            const chromiumPath = await chromium.executablePath();
+            console.log(`🔧 Raw Chromium response:`, typeof chromiumPath, JSON.stringify(chromiumPath));
+            
+            // Handle different response types
+            if (typeof chromiumPath === 'string') {
+                executablePath = chromiumPath;
+            } else if (chromiumPath && typeof chromiumPath === 'object' && chromiumPath.path) {
+                executablePath = chromiumPath.path;
+            } else if (chromiumPath && typeof chromiumPath === 'object' && chromiumPath.executablePath) {
+                executablePath = chromiumPath.executablePath;
+            } else {
+                // Fallback to string conversion
+                executablePath = String(chromiumPath);
+            }
+            
+            console.log(`🔧 Final executablePath: ${executablePath}`);
         } catch (pathError) {
             console.error(`❌ Failed to get Chromium path:`, pathError);
             throw new Error(`Chromium executable path error: ${pathError.message}`);
