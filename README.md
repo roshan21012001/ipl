@@ -6,9 +6,9 @@ A complete IPL data ecosystem with web scraping, server-side rendering, and fron
 
 ```
 ipl_data/
-├── scraper/           # Web scraper for IPL data (Node.js + Puppeteer)
-├── backend-nextjs/    # Next.js SSR backend API
-├── frontend-react/    # React frontend with routing
+├── scraper/           # Standalone web scraper for IPL data (Node.js + Puppeteer)
+├── scraper-vercel/    # Vercel-specific API routes for scraping (using @sparticuz/chromium)
+├── web-app/           # Next.js application (combines backend API routes and React frontend)
 └── package.json       # Monorepo management
 ```
 
@@ -16,19 +16,18 @@ ipl_data/
 
 ### 🔧 Scraper (`./scraper/`)
 - **Tech**: Node.js, Puppeteer
-- **Purpose**: Scrape IPL points table, matches, and team data
+- **Purpose**: Standalone web scraper to fetch IPL points table, matches, and team data. Can be run independently.
 - **Anti-bot**: User agent rotation, rate limiting
 - **Data**: 74 matches, 10 teams, points table
 
-### ⚡ Backend Next.js (`./backend-nextjs/`)
-- **Tech**: Next.js 15, TypeScript, Tailwind CSS
-- **Purpose**: Server-side rendering, API endpoints
-- **Features**: SSR pages, API routes for scraped data
+### ⚡ Web App (`./web-app/`)
+- **Tech**: Next.js 15, React, TypeScript, Tailwind CSS
+- **Purpose**: Serves as both the backend (API routes for scraped data) and the frontend (data visualization and routing).
+- **Features**: SSR pages, API routes for scraped data, IPL dashboard, match results, team standings.
 
-### 🎨 Frontend React (`./frontend-react/`)
-- **Tech**: React, TypeScript
-- **Purpose**: Data visualization and routing
-- **Features**: IPL dashboard, match results, team standings
+### ☁️ Scraper Vercel (`./scraper-vercel/`)
+- **Tech**: Node.js, @sparticuz/chromium, Puppeteer-core
+- **Purpose**: Contains serverless functions specifically designed for scraping on Vercel, leveraging `@sparticuz/chromium` for headless browser capabilities. These functions are typically consumed by the `web-app` when deployed to Vercel.
 
 ## Quick Start
 

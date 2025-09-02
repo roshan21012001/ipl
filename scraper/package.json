@@ -6,18 +6,15 @@
   "scripts": {
     "start": "node server.js",
     "server": "node server.js",
-    "build": "npx puppeteer browsers install chrome",
-    "postinstall": "npx puppeteer browsers install chrome",
     "dev": "node main.js",
     "points": "node main.js points",
     "matches": "node main.js matches",
-    "teams": "node main.js teams",
-    "legacy": "node scraper.js"
+    "teams": "node main.js teams"
   },
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^5.1.0",
-    "puppeteer": "^24.0.0",
+    "puppeteer-core": "^22.10.0",
     "@sparticuz/chromium": "^123.0.0"
   },
   "engines": {

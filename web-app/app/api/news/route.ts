@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const SCRAPER_SERVICE_URL = process.env.SCRAPER_SERVICE_URL || 'http://localhost:3001';
+const SCRAPER_SERVICE_URL = process.env.SCRAPER_SERVICE_URL || 'http://localhost:3002';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
