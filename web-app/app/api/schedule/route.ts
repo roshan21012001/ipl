@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { scrapeMatches } from '@/lib/scrapers/matches.js';
 
 interface MatchData {
   description?: string;
@@ -12,26 +13,20 @@ export async function GET(request: NextRequest) {
     const year = searchParams.get('year') || '2025';
     const forceRefresh = searchParams.get('refresh') === 'true';
     
-    // Get the base URL from the request
-    const baseUrl = `${request.nextUrl.protocol}//${request.nextUrl.host}`;
-    
     console.log(`📅 Loading schedule data for ${year}...`);
     
-    // Fetch matches data from our existing API with year parameter
-    const matchesResponse = await fetch(`${baseUrl}/api/matches?year=${year}${forceRefresh ? '&refresh=true' : ''}`, {
-      headers: {
-        'User-Agent': 'IPL-Schedule-API'
-      }
-    });
+    // Call scraper function directly instead of making internal HTTP call
+    const matches = await scrapeMatches(year);
     
-    if (!matchesResponse.ok) {
-      throw new Error(`Failed to fetch matches: ${matchesResponse.status}`);
-    }
-    
-    const matchesData = await matchesResponse.json();
+    const matchesData = {
+      year: year,
+      totalMatches: matches.length,
+      matches: matches,
+      lastUpdated: new Date().toISOString()
+    };
     
     // Transform matches data for schedule view
-    const matches = matchesData.matches || [];
+    const matchesList = matchesData.matches || [];
     
     // Helper functions to determine match status
     const getMatchStatus = (match: MatchData) => {
@@ -46,14 +41,14 @@ export async function GET(request: NextRequest) {
       return 'upcoming';
     };
     
-    const completedMatches = matches.filter((match: MatchData) => getMatchStatus(match) === 'completed');
-    const upcomingMatches = matches.filter((match: MatchData) => getMatchStatus(match) === 'upcoming');
-    const abandonedMatches = matches.filter((match: MatchData) => getMatchStatus(match) === 'abandoned');
+    const completedMatches = matchesList.filter((match: MatchData) => getMatchStatus(match) === 'completed');
+    const upcomingMatches = matchesList.filter((match: MatchData) => getMatchStatus(match) === 'upcoming');
+    const abandonedMatches = matchesList.filter((match: MatchData) => getMatchStatus(match) === 'abandoned');
     
     const scheduleData = {
       year: parseInt(year),
-      totalMatches: matchesData.totalMatches || matches.length || 74,
-      matches: matches,
+      totalMatches: matchesData.totalMatches || matchesList.length || 74,
+      matches: matchesList,
       lastUpdated: matchesData.lastUpdated || new Date().toISOString(),
       upcomingMatches: upcomingMatches.length,
       completedMatches: completedMatches.length,
