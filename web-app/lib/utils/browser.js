@@ -46,6 +46,9 @@ export async function createBrowser() {
     if (isVercel) {
         executablePath = await chromium.executablePath();
         console.log(`📍 Using Chromium executable: ${executablePath}`);
+    } else {
+        const puppeteerPackage = await import('puppeteer');
+        executablePath = puppeteerPackage.default.executablePath();
     }
     
     const browserConfig = {

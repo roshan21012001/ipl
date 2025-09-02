@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { scrapeTeams } from '@/lib/scrapers/teams-playwright.js';
+import { scrapeTeams } from '@/lib/scrapers/teams.js';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
