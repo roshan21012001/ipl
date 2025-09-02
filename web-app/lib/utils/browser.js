@@ -41,7 +41,7 @@ export async function createBrowser() {
     const isVercel = !!process.env.VERCEL || !!process.env.AWS_LAMBDA_FUNCTION_NAME;
     const isProduction = process.env.NODE_ENV === 'production';
     
-    console.log(`🌐 Creating browser (Vercel: ${isVercel}, Production: ${isProduction}, Platform: ${process.platform})...`);
+    console.log(`🚀 Initializing browser (Vercel: ${isVercel}, Production: ${isProduction}, Platform: ${process.platform})...`);
     
     let executablePath;
     let browserArgs = [];
@@ -93,7 +93,7 @@ export async function createBrowser() {
     
     try {
         const browser = await puppeteer.launch(browserConfig);
-        console.log(`✅ Browser created successfully`);
+        console.log(`✅ Browser launched successfully and ready`);
         return browser;
     } catch (error) {
         console.error(`❌ Browser launch failed:`, error.message);
