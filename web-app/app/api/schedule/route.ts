@@ -10,7 +10,7 @@ interface MatchData {
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const year = searchParams.get('year') || '2025';
+    const year = parseInt(searchParams.get('year') || '2025');
     const forceRefresh = searchParams.get('refresh') === 'true';
     
     console.log(`📅 Loading schedule data for ${year}...`);
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
     const abandonedMatches = matchesList.filter((match: MatchData) => getMatchStatus(match) === 'abandoned');
     
     const scheduleData = {
-      year: parseInt(year),
+      year: year,
       totalMatches: matchesData.totalMatches || matchesList.length || 74,
       matches: matchesList,
       lastUpdated: matchesData.lastUpdated || new Date().toISOString(),
