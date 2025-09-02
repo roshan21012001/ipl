@@ -62,7 +62,12 @@ export async function createBrowser() {
             '--single-process',
             '--disable-gpu',
             '--disable-web-security',
-            '--disable-features=VizDisplayCompositor'
+            '--disable-features=VizDisplayCompositor',
+            '--memory-pressure-off',
+            '--max_old_space_size=1024',
+            '--disable-background-timer-throttling',
+            '--disable-backgrounding-occluded-windows',
+            '--disable-renderer-backgrounding'
         ];
         console.log(`📍 Using Chromium for Vercel: ${executablePath}`);
     } else {
